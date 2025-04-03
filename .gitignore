@@ -1,3 +1,7 @@
-node_modules/
+
+node_modules
+flight-management-api-firebase-adminsdk-fbsvc-05f5e27dc8.json
+.env
 dist/
-.vscode/
+
+
