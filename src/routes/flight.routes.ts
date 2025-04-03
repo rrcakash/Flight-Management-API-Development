@@ -1,5 +1,3 @@
-// src/routes/flight.routes.ts
-
 import express from "express";
 import { createFlight, getAllFlights, getFlightById, updateFlight, deleteFlight } from "../controllers/flight.controller";
 
