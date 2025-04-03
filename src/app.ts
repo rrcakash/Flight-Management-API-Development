@@ -2,11 +2,12 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
+import flightRoutes from "./routes/flight.routes";
 
 dotenv.config();
 
 const app = express();
-const flightRoutes = require("./routes/flight.routes");
+
 
 // Middleware
 app.use(express.json());

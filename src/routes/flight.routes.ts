@@ -1,11 +1,12 @@
-const express = require("express");
+import express from "express";
+import { createFlight, getAllFlights, getFlightById, updateFlight, deleteFlight } from "../controllers/flight.controller";
+
 const router = express.Router();
-const flightController = require("../controllers/flight.controller");
 
-router.post("/", flightController.createFlight);
-router.get("/", flightController.getAllFlights);
-router.get("/:id", flightController.getFlightById);
-router.put("/:id", flightController.updateFlight);
-router.delete("/:id", flightController.deleteFlight);
+router.post("/", createFlight);
+router.get("/", getAllFlights);
+router.get("/:id", getFlightById);
+router.put("/:id", updateFlight);
+router.delete("/:id", deleteFlight);
 
-module.exports = router;
+export default router;
