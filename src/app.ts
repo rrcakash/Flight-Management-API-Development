@@ -6,11 +6,13 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
+const flightRoutes = require("./routes/flight.routes");
 
 // Middleware
 app.use(express.json());
 app.use(cors());
 app.use(helmet());
+app.use("/flights", flightRoutes);
 
 // Route
 app.get("/", (req: Request, res: Response): void => {
