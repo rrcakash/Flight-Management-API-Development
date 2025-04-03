@@ -2,15 +2,18 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
+import flightRoutes from "./routes/flight.routes";
 
 dotenv.config();
 
 const app = express();
 
+
 // Middleware
 app.use(express.json());
 app.use(cors());
 app.use(helmet());
+app.use("/flights", flightRoutes);
 
 // Route
 app.get("/", (req: Request, res: Response): void => {
@@ -18,4 +21,10 @@ app.get("/", (req: Request, res: Response): void => {
 });
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+const server = app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+
+// Export the server instance for testing purposes
+export default server;
