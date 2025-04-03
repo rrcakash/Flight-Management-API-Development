@@ -9,4 +9,4 @@ router.get("/:id", getFlightById);
 router.put("/:id", updateFlight);
 router.delete("/:id", deleteFlight);
 
-export default router;
+export default router; 

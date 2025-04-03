@@ -3,7 +3,6 @@ import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
 import flightRoutes from "./routes/flight.routes";
-
 dotenv.config();
 
 const app = express();
