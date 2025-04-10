@@ -2,9 +2,10 @@ import express, { Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
+import flightRoutes from "./routes/flight.routes";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger";
-import flightRoutes from "./routes/flight.routes";
+
 dotenv.config();
 
 const app = express();
@@ -14,10 +15,9 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 app.use(helmet());
+app.use("/flights", flightRoutes);
 // Serve Swagger API Docs
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-app.use("/flights", flightRoutes);
 
 // Route
 app.get("/", (req: Request, res: Response): void => {
