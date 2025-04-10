@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 import flightRoutes from "./routes/flight.routes";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger";
-
+import bookingRoutes from "./routes/booking.routes";
 dotenv.config();
 
 const app = express();
@@ -16,6 +16,7 @@ app.use(express.json());
 app.use(cors());
 app.use(helmet());
 app.use("/flights", flightRoutes);
+app.use("/bookings", bookingRoutes);
 // Serve Swagger API Docs
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
