@@ -10,10 +10,11 @@ const schema = Joi.object({
   }).optional(),
 });
 
-export const validateBooking = (req: Request, res: Response, next: NextFunction) => {
+export const validateBooking = (req: Request, res: Response, next: NextFunction): void => {
   const { error } = schema.validate(req.body);
   if (error) {
-    return res.status(400).json({ error: error.details[0].message });
+    res.status(400).json({ error: error.details[0].message });
+    return;
   }
   next();
 };
