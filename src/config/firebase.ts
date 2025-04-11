@@ -1,9 +1,16 @@
-const admin = require("firebase-admin");
-const serviceAccount = require("../../serviceAccountKey.json");
+import admin from 'firebase-admin';
+import fs from 'fs';
+import path from 'path';
+
+// Dynamically load the JSON file
+const serviceAccountPath = path.resolve(__dirname, '../../flight-management-api-firebase-adminsdk-fbsvc-05f5e27dc8.json');
+
+const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8'));
 
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+  credential: admin.credential.cert(serviceAccount),
 });
 
 const db = admin.firestore();
-module.exports = db;
+
+export { admin, db };
