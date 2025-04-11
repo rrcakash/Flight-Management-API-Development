@@ -25,7 +25,7 @@ const swaggerDefinition = {
 // Options for the swagger-jsdoc
 const options = {
   definition: swaggerDefinition,
-  apis: ["./src/routes/flight.routes.ts"], 
+  apis: ["./src/routes/flight.routes.ts","./src/routes/booking.routes.ts"],
 };
 
 // Create swagger spec
