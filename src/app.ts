@@ -6,6 +6,7 @@ import flightRoutes from "./routes/flight.routes";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger";
 import bookingRoutes from "./routes/booking.routes";
+import authRoutes from './routes/auth.routes';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ app.use(helmet());
 app.use("/flights", flightRoutes);
 app.use("/bookings", bookingRoutes);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.use('/auth', authRoutes);
 
 app.get("/", (req: Request, res: Response): void => {
   res.json({ message: "Flight Management API is running!" });
