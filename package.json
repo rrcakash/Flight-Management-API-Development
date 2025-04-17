@@ -4,7 +4,7 @@
   "description": "Flight Management API",
   "main": "src/app.ts",
   "scripts": {
-    "start": "ts-node src/app.ts",
+    "start": "ts-node src/server.ts",
     "build": "tsc",
     "test": "jest"
   },

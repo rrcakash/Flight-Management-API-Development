@@ -1,5 +1,5 @@
 import request from 'supertest';
-import server from '../src/app'; 
+import app from '../src/app';
 
 // Inline mock for authenticate middleware
 jest.mock('../src/middleware/auth.middleware', () => ({
@@ -17,7 +17,7 @@ describe('Booking API (mocked auth, test mode)', () => {
   let bookingId: string;
 
   it('should create a new booking', async () => {
-    const response = await request(server)
+    const response = await request(app)
       .post('/bookings')
       .send({
         flightId: 'FL-001',
@@ -34,16 +34,16 @@ describe('Booking API (mocked auth, test mode)', () => {
   });
 
   it('should retrieve the booking by ID', async () => {
-    const response = await request(server).get(`/bookings/${bookingId}`);
+    const response = await request(app).get(`/bookings/${bookingId}`);
     expect(response.status).toBe(200);
     expect(response.body.id).toBe(bookingId);
   });
 
   it('should update the booking seat number', async () => {
-    const response = await request(server)
+    const response = await request(app)
       .put(`/bookings/${bookingId}`)
       .send({
-        flightId: 'FL-001', 
+        flightId: 'FL-001',
         seatNumber: 'B2',
         location: {
           city: 'Vancouver',
@@ -56,19 +56,14 @@ describe('Booking API (mocked auth, test mode)', () => {
   });
 
   it('should delete the booking', async () => {
-    const response = await request(server).delete(`/bookings/${bookingId}`);
+    const response = await request(app).delete(`/bookings/${bookingId}`);
     expect(response.status).toBe(200);
     expect(response.body.message).toMatch(/deleted/i);
   });
 
   it('should return 404 for non-existent booking', async () => {
-    const response = await request(server).get('/bookings/nonexistent-id');
+    const response = await request(app).get('/bookings/nonexistent-id');
     expect(response.status).toBe(404);
     expect(response.body.message).toMatch(/not found/i);
-  });
-
-  // Clean up the server after tests
-  afterAll((done) => {
-    server.close(done);
   });
 });
