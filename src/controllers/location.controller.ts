@@ -21,10 +21,13 @@ const csvWriter = createObjectCsvWriter({
   append: fs.existsSync(csvPath),
 });
 
-export const addLocation = async (req: Request, res: Response) => {
+export const addLocation = async (req: Request, res: Response): Promise<void> => {
   try {
     const { error, value } = locationSchema.validate(req.body);
-    if (error) return res.status(400).json({ error: error.details[0].message });
+    if (error) {
+      res.status(400).json({ error: error.details[0].message });
+      return;
+    }
 
     const location: Location = {
       ...value,
@@ -50,12 +53,13 @@ export const addLocation = async (req: Request, res: Response) => {
   }
 };
 
-export const getLocations = async (_req: Request, res: Response) => {
+export const getLocations = async (_req: Request, res: Response): Promise<void> => {
   try {
     const snapshot = await db.collection("locations").get();
     const locations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     res.status(200).json(locations);
-  } catch {
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Failed to fetch locations" });
   }
 };
