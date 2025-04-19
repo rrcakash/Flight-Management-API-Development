@@ -1,22 +1,25 @@
 import { Request, Response, NextFunction } from "express";
-import { admin } from "../config/firebase";
+import {admin}from "../config/firebase";
 
-
-export const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
+export const verifyToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res.status(401).json({ error: "Unauthorized: Missing or invalid token" });
+    res.status(401).json({ message: "Unauthorized" });
+    return;
   }
 
-  const idToken = authHeader.split("Bearer ")[1];
+  const token = authHeader.split(" ")[1];
 
   try {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    (req as any).user = decodedToken; // You can use a custom type if needed
+    const decodedToken = await admin.auth().verifyIdToken(token);
+    (req as any).user = decodedToken;
     next();
-  } catch (error) {
-    console.error("Token verification failed:", error);
-    res.status(403).json({ error: "Forbidden: Invalid or expired token" });
+  } catch (err) {
+    res.status(401).json({ message: "Invalid token" });
   }
 };

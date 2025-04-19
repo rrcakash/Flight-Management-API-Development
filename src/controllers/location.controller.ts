@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { db } from "../config/firebase";
 import { locationSchema } from "../validators/location.validator";
 import fs from "fs";
 import path from "path";
@@ -8,6 +7,12 @@ import { Location } from "../models/location.model";
 
 const csvPath = path.join(__dirname, "../../data/locations.csv");
 
+// Ensure the /data folder exists
+if (!fs.existsSync(path.dirname(csvPath))) {
+  fs.mkdirSync(path.dirname(csvPath), { recursive: true });
+}
+
+// Setup CSV writer
 const csvWriter = createObjectCsvWriter({
   path: csvPath,
   header: [
@@ -21,6 +26,7 @@ const csvWriter = createObjectCsvWriter({
   append: fs.existsSync(csvPath),
 });
 
+// ✅ DO NOT "return res" — just call res.status().json(...)
 export const addLocation = async (req: Request, res: Response): Promise<void> => {
   try {
     const { error, value } = locationSchema.validate(req.body);
@@ -29,11 +35,7 @@ export const addLocation = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const location: Location = {
-      ...value,
-    };
-
-    await db.collection("locations").doc(location.id).set(location);
+    const location: Location = { ...value };
 
     await csvWriter.writeRecords([
       {
@@ -46,20 +48,40 @@ export const addLocation = async (req: Request, res: Response): Promise<void> =>
       },
     ]);
 
-    res.status(201).json({ message: "Location added successfully", location });
+    res.status(201).json({ message: "✅ Location saved to CSV", location });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to add location" });
+    console.error("❌ CSV write failed:", err);
+    res.status(500).json({ error: "Failed to save to CSV" });
   }
 };
 
 export const getLocations = async (_req: Request, res: Response): Promise<void> => {
   try {
-    const snapshot = await db.collection("locations").get();
-    const locations = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    if (!fs.existsSync(csvPath)) {
+      res.status(200).json([]);
+      return;
+    }
+
+    const csvData = fs.readFileSync(csvPath, "utf8");
+    const rows = csvData.split("\n").slice(1).filter(Boolean); // skip header
+
+    const locations = rows.map((line) => {
+      const [id, name, country, airportCode, lat, lng] = line.split(",");
+      return {
+        id,
+        name,
+        country,
+        airportCode,
+        coordinates: {
+          lat: parseFloat(lat),
+          lng: parseFloat(lng),
+        },
+      };
+    });
+
     res.status(200).json(locations);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Failed to fetch locations" });
+    console.error("❌ Failed to read CSV:", err);
+    res.status(500).json({ error: "Failed to load locations" });
   }
 };
