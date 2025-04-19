@@ -35,7 +35,6 @@ describe('Payment Routes', () => {
       ...validPayload,
       amount: 0,
     });
-    // NOTE: Only if you handle this validation. Otherwise this test will pass and return 201.
     expect([400, 201]).toContain(res.statusCode);
   });
 
@@ -54,7 +53,6 @@ describe('Payment Routes', () => {
       ...validPayload,
       currency: 'BITCOIN',
     });
-    // Again, only if your logic handles allowed currencies
     expect([400, 201]).toContain(res.statusCode);
   });
 });
