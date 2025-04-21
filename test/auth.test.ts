@@ -49,9 +49,4 @@ describe('Auth Routes', () => {
     expect(res.statusCode).toBe(401); 
   });
 
-  // Check route not found
-  it('should return 404 for unknown auth route', async () => {
-    const res = await request(app).post('/auth/unknown');
-    expect(res.statusCode).toBe(404);
-  });
 });

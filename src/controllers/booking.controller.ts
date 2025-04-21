@@ -29,11 +29,26 @@ export const getBookingById = async (req: Request, res: Response) => {
   
 
 export const updateBooking = async (req: Request, res: Response) => {
-  const result = await BookingService.updateBooking(req.params.id, req.body);
-  res.status(200).json(result);
+  const user = (req as any).user; // { uid, role }
+
+  try {
+    const result = await BookingService.updateBooking(req.params.id, req.body, user);
+    res.status(200).json(result);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(403).json({ error: message });
+  }
 };
 
 export const deleteBooking = async (req: Request, res: Response) => {
-  const result = await BookingService.deleteBooking(req.params.id);
-  res.status(200).json(result);
+  const user = (req as any).user;
+
+  try {
+    const result = await BookingService.deleteBooking(req.params.id, user);
+    res.status(200).json(result);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(403).json({ error: message });
+  }
 };
+

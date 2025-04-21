@@ -1,6 +1,6 @@
 import express from "express";
 import { addLocation, getLocations } from "../controllers/location.controller";
-import { verifyToken } from "../middleware/location.middleware"; // Optional, keep if used
+import { verifyToken } from "../middleware/location.middleware"; 
 
 const router = express.Router();
 
