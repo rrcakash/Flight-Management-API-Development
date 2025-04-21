@@ -1,5 +1,16 @@
 import request from "supertest";
-import app from "../src/app"; 
+import app from "../src/app";
+
+jest.mock("../src/middleware/customClaim.middleware", () => ({
+  decodeTokenAndAttachClaims: (req: any, _res: any, next: any) => {
+    req.user = { uid: "mock-user-id", email: "test@example.com", role: "admin" };
+    next();
+  },
+}));
+
+jest.mock("../src/middleware/authorize", () => {
+  return () => (_req: any, _res: any, next: any) => next();
+});
 
 describe("Flight API", () => {
   let flightId: string;
@@ -49,4 +60,37 @@ describe("Flight API", () => {
     const response = await request(app).get("/flights/9999");
     expect(response.status).toBe(404);
   });
+
+  it("should return 404 when trying to update a non-existing flight", async () => {
+    const response = await request(app).put("/flights/invalid-id").send({ price: 700 });
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty("message", "Flight not found");
+  });
+
+  it("should return 404 when trying to delete a non-existing flight", async () => {
+    const response = await request(app).delete("/flights/invalid-id");
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty("message", "Flight not found");
+  });
+
+  it("should return flights with correct structure", async () => {
+    const response = await request(app).post("/flights").send({
+      airline: "Qatar Airways",
+      departure: "Doha",
+      destination: "Toronto",
+      date: "2025-06-01",
+      price: 999,
+    });
+
+    expect(response.status).toBe(201);
+    const getAll = await request(app).get("/flights");
+    expect(getAll.status).toBe(200);
+    const createdFlight = getAll.body.find((f: any) => f.airline === "Qatar Airways");
+    expect(createdFlight).toHaveProperty("airline");
+    expect(createdFlight).toHaveProperty("departure");
+    expect(createdFlight).toHaveProperty("destination");
+    expect(createdFlight).toHaveProperty("date");
+    expect(createdFlight).toHaveProperty("price");
+  });
 });
+

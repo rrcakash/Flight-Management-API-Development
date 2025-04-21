@@ -1,17 +1,18 @@
+// test/booking.test.ts
 import request from 'supertest';
 import app from '../src/app';
 
-// Inline mock for authenticate middleware
-jest.mock('../src/middleware/auth.middleware', () => ({
-  authenticate: (req: any, res: any, next: any) => {
-    req.user = {
-      uid: 'test-user-id',
-      role: 'manager',
-      email: 'test@example.com',
-    };
+// Mock both decodeTokenAndAttachClaims and isAuthorized middleware
+jest.mock('../src/middleware/customClaim.middleware', () => ({
+  decodeTokenAndAttachClaims: (req: any, _res: any, next: any) => {
+    req.user = { uid: 'test-user-id', role: 'user', email: 'test@example.com' };
     next();
   },
 }));
+
+jest.mock('../src/middleware/authorize', () => {
+  return () => (_req: any, _res: any, next: any) => next();
+});
 
 describe('Booking API (mocked auth, test mode)', () => {
   let bookingId: string;
@@ -66,4 +67,67 @@ describe('Booking API (mocked auth, test mode)', () => {
     expect(response.status).toBe(404);
     expect(response.body.message).toMatch(/not found/i);
   });
+
+  it('should not create booking with missing fields', async () => {
+    const response = await request(app).post('/bookings').send({
+      seatNumber: 'A2'
+    });
+    expect(response.status).toBeGreaterThanOrEqual(400);
+  });
+
+  it('should not update a booking with invalid location structure', async () => {
+    const createRes = await request(app).post('/bookings').send({
+      flightId: 'FL-002',
+      seatNumber: 'C1',
+      location: { city: 'Delhi', country: 'India' },
+    });
+
+    const id = createRes.body.id;
+
+    const updateRes = await request(app)
+      .put(`/bookings/${id}`)
+      .send({
+        seatNumber: 'D4',
+        location: "This should be an object"
+      });
+
+    expect(updateRes.status).toBeGreaterThanOrEqual(400);
+  });
+
+  it('should not allow update with empty seatNumber', async () => {
+    const createRes = await request(app).post('/bookings').send({
+      flightId: 'FL-003',
+      seatNumber: 'E1',
+      location: { city: 'Delhi', country: 'India' },
+    });
+
+    const id = createRes.body.id;
+
+    const response = await request(app).put(`/bookings/${id}`).send({
+      seatNumber: '',
+      location: { city: 'Delhi', country: 'India' }
+    });
+
+    expect(response.status).toBeGreaterThanOrEqual(400);
+  });
+
+  it('should reject booking with non-string seatNumber', async () => {
+    const response = await request(app).post('/bookings').send({
+      flightId: 'FL-006',
+      seatNumber: 12345,
+      location: { city: 'Paris', country: 'France' }
+    });
+    expect(response.status).toBeGreaterThanOrEqual(400);
+  });
+
+  it('should reject booking with invalid location type', async () => {
+    const response = await request(app).post('/bookings').send({
+      flightId: 'FL-007',
+      seatNumber: 'G1',
+      location: "invalid"
+    });
+    expect(response.status).toBeGreaterThanOrEqual(400);
+  });
 });
+
+

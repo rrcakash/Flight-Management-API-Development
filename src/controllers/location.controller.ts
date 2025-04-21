@@ -26,7 +26,6 @@ const csvWriter = createObjectCsvWriter({
   append: fs.existsSync(csvPath),
 });
 
-// ✅ DO NOT "return res" — just call res.status().json(...)
 export const addLocation = async (req: Request, res: Response): Promise<void> => {
   try {
     const { error, value } = locationSchema.validate(req.body);
@@ -50,7 +49,7 @@ export const addLocation = async (req: Request, res: Response): Promise<void> =>
 
     res.status(201).json({ message: "✅ Location saved to CSV", location });
   } catch (err) {
-    console.error("❌ CSV write failed:", err);
+    console.error("CSV write failed:", err);
     res.status(500).json({ error: "Failed to save to CSV" });
   }
 };
@@ -81,7 +80,7 @@ export const getLocations = async (_req: Request, res: Response): Promise<void> 
 
     res.status(200).json(locations);
   } catch (err) {
-    console.error("❌ Failed to read CSV:", err);
+    console.error("Failed to read CSV:", err);
     res.status(500).json({ error: "Failed to load locations" });
   }
 };

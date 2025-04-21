@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import * as BookingController from '../controllers/booking.controller';
-import { authenticate } from '../middleware/auth.middleware';
 import { validateBooking } from '../validators/booking.validator';
+import { decodeTokenAndAttachClaims } from '../middleware/customClaim.middleware';
+import isAuthorized from '../middleware/authorize';
 
 const router = Router();
 
@@ -12,7 +13,7 @@ const router = Router();
  *   description: API endpoints for managing flight bookings
  */
 
-router.use(authenticate);
+router.use(decodeTokenAndAttachClaims);
 
 /**
  * @swagger
@@ -47,7 +48,7 @@ router.use(authenticate);
  *       201:
  *         description: Booking created successfully
  */
-router.post('/', validateBooking, BookingController.createBooking);
+router.post('/', isAuthorized({ hasRole: ['user', 'staff'] }), validateBooking, BookingController.createBooking);
 
 /**
  * @swagger
@@ -69,7 +70,8 @@ router.post('/', validateBooking, BookingController.createBooking);
  *       404:
  *         description: Booking not found
  */
-router.get('/:id', BookingController.getBookingById);
+router.get('/:id', isAuthorized({ hasRole: ['user', 'staff', 'admin'] }), BookingController.getBookingById);
+
 
 /**
  * @swagger
@@ -107,7 +109,7 @@ router.get('/:id', BookingController.getBookingById);
  *       200:
  *         description: Booking updated successfully
  */
-router.put('/:id', validateBooking, BookingController.updateBooking);
+router.put('/:id', isAuthorized({ hasRole: ['staff', 'admin'] }), validateBooking, BookingController.updateBooking);
 
 /**
  * @swagger
@@ -127,6 +129,7 @@ router.put('/:id', validateBooking, BookingController.updateBooking);
  *       200:
  *         description: Booking deleted
  */
-router.delete('/:id', BookingController.deleteBooking);
+
+router.delete('/:id', isAuthorized({ hasRole: ['admin'] }), BookingController.deleteBooking);
 
 export default router;

@@ -1,7 +1,13 @@
-// src/routes/flight.routes.ts
-
 import express from "express";
-import { createFlight, getAllFlights, getFlightById, updateFlight, deleteFlight } from "../controllers/flight.controller";
+import {
+  createFlight,
+  getAllFlights,
+  getFlightById,
+  updateFlight,
+  deleteFlight
+} from "../controllers/flight.controller";
+import { decodeTokenAndAttachClaims } from "../middleware/customClaim.middleware";
+import isAuthorized from "../middleware/authorize";
 
 const router = express.Router();
 
@@ -36,7 +42,7 @@ const router = express.Router();
  *       400:
  *         description: Invalid input
  */
-router.post("/", createFlight);
+router.post('/', decodeTokenAndAttachClaims, isAuthorized({ hasRole: ['admin','staff'] }), createFlight);
 
 /**
  * @swagger
@@ -69,7 +75,7 @@ router.post("/", createFlight);
  *                     type: number
  *                     format: float
  */
-router.get("/", getAllFlights);
+router.get('/', decodeTokenAndAttachClaims, isAuthorized({ hasRole: ['admin','staff'] }), getAllFlights);
 
 /**
  * @swagger
@@ -109,7 +115,7 @@ router.get("/", getAllFlights);
  *       404:
  *         description: Flight not found
  */
-router.get("/:id", getFlightById);
+router.get('/:id', decodeTokenAndAttachClaims, isAuthorized({ hasRole: ['admin', 'staff', 'user'] }), getFlightById);
 
 /**
  * @swagger
@@ -149,7 +155,7 @@ router.get("/:id", getFlightById);
  *       404:
  *         description: Flight not found
  */
-router.put("/:id", updateFlight);
+router.put('/:id', decodeTokenAndAttachClaims, isAuthorized({ hasRole: ['admin', 'staff'] }), updateFlight);
 
 /**
  * @swagger
@@ -170,6 +176,6 @@ router.put("/:id", updateFlight);
  *       404:
  *         description: Flight not found
  */
-router.delete("/:id", deleteFlight);
+router.delete('/:id', decodeTokenAndAttachClaims, isAuthorized({ hasRole: ['admin'] }), deleteFlight);
 
 export default router;
